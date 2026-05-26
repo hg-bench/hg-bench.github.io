@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HG-Bench: Multi-Page Handwritten Answer-Region Grounding for Automated Homework Assessment</title>
+  <meta name="description" content="HG-Bench — a 500-sample benchmark for two-level, page-aware grounding on multi-page handwritten K-12 student homework, paired with a page-aware evaluation protocol and a reference SFT system." />
+  <meta name="keywords" content="HG-Bench, handwritten grounding, homework assessment, VLM benchmark, EMNLP 2026" />
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content="HG-Bench: Multi-Page Handwritten Answer-Region Grounding" />
+  <meta property="og:description" content="The first benchmark for two-level, page-aware answer-region grounding on multi-page handwritten K-12 homework." />
+  <meta property="og:image" content="emnlp_case.png" />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome (icons for buttons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- MathJax (for $\mathcal{F}_A$ etc.) -->
+  <script>
+    MathJax = {
+      tex: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']]},
+      svg: {fontCache: 'global'}
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+  <style>
+    :root {
+      --header-gray: #e6e6e6;
+      --row-gray: #f5f5f5;
+      --ours-blue: #d6f4fa;
+      --gain-blue: #0080c8;
+      --link: #2c5fb3;
+      --link-hover: #173a73;
+      --accent: #6d4cb1;
+      --accent-soft: #f6f1ff;
+      --accent-frame: #c9b6f2;
+      --text: #1d1d1f;
+      --muted: #5c6370;
+      --bg: #ffffff;
+      --section-divider: #ececec;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    /* ---- Top nav ---- */
+    nav.topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,0.95); backdrop-filter: saturate(180%) blur(8px);
+      border-bottom: 1px solid var(--section-divider);
+      padding: 0.7rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.95rem;
+    }
+    nav.topbar .brand { font-weight: 700; }
+    nav.topbar ul { list-style: none; display: flex; gap: 1.2rem; margin: 0; padding: 0; }
+    nav.topbar a { color: var(--muted); text-decoration: none; }
+    nav.topbar a:hover { color: var(--link); }
+    @media (max-width: 720px) { nav.topbar ul { display: none; } }
+
+    /* ---- Hero ---- */
+    header.hero {
+      max-width: 1024px; margin: 0 auto; padding: 3rem 1.5rem 2rem; text-align: center;
+    }
+    header.hero h1 {
+      font-family: 'Source Serif Pro', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.25; margin: 0 0 1rem; font-weight: 700;
+    }
+    header.hero .venue {
+      color: var(--accent); font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; font-size: 0.85rem; margin-bottom: 0.6rem;
+    }
+    header.hero .authors {
+      color: var(--muted); font-size: 1rem; margin: 0.5rem 0 0.2rem; font-style: italic;
+    }
+    header.hero .affil { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.8rem; }
+
+    .button-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7rem; margin: 1rem auto 0.5rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1.1rem; border-radius: 999px;
+      font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 500;
+      background: #1d1d1f; color: white; text-decoration: none;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn:hover { background: var(--link); transform: translateY(-1px); }
+    .btn.outline { background: white; color: #1d1d1f; border: 1px solid #d0d0d0; }
+    .btn.outline:hover { border-color: var(--link); color: var(--link); }
+    .btn.disabled { background: #c5c5c5; color: white; cursor: not-allowed; }
+    .btn.disabled:hover { background: #c5c5c5; transform: none; }
+
+    /* ---- Sections ---- */
+    section { max-width: 1024px; margin: 0 auto; padding: 3rem 1.5rem; }
+    section h2 {
+      font-family: 'Source Serif Pro', serif;
+      font-size: 1.65rem; margin: 0 0 1.2rem; padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--section-divider);
+    }
+    section h3 {
+      font-family: 'Source Serif Pro', serif;
+      font-size: 1.2rem; margin: 1.8rem 0 0.6rem;
+    }
+    p { margin: 0.8rem 0; }
+    a { color: var(--link); text-decoration: none; border-bottom: 1px dotted var(--link); }
+    a:hover { color: var(--link-hover); border-bottom-style: solid; }
+
+    /* ---- Hero teaser figure ---- */
+    .teaser-figure { max-width: 1024px; margin: 1.5rem auto 0; padding: 0 1rem; }
+    .teaser-figure figure { margin: 0; }
+    .teaser-figure img, .teaser-figure embed {
+      width: 100%; border-radius: 6px; border: 1px solid var(--section-divider);
+      background: white;
+    }
+    figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 0.6rem; text-align: left; }
+    figcaption b { color: var(--text); }
+
+    /* ---- Highlight cards ---- */
+    .highlights {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem; margin-top: 1.5rem;
+    }
+    .card {
+      border: 1px solid var(--section-divider); border-radius: 10px;
+      padding: 1.2rem 1.1rem; background: white;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.04); border-color: #c5c5c5; }
+    .card .num {
+      font-family: 'Source Serif Pro', serif; font-weight: 700; font-size: 2rem;
+      color: var(--accent); line-height: 1; display: block; margin-bottom: 0.3rem;
+    }
+    .card .label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem; }
+    .card .desc { font-size: 0.92rem; color: var(--text); line-height: 1.45; }
+
+    /* ---- Results table ---- */
+    .results-table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; }
+    table.results {
+      width: 100%; min-width: 700px; border-collapse: collapse;
+      font-family: 'Inter', sans-serif; font-size: 0.92rem;
+    }
+    table.results th, table.results td { padding: 0.55rem 0.8rem; text-align: center; }
+    table.results th { background: var(--header-gray); font-weight: 700; border-top: 2px solid #444; border-bottom: 1.5px solid #888; }
+    table.results td:first-child, table.results th:first-child { text-align: left; }
+    table.results tr td { border-bottom: 1px solid #ececec; }
+    table.results tbody tr:nth-child(even) td { background: var(--row-gray); }
+    table.results tr.group-header td {
+      background: white !important; font-style: italic; color: #7a7a7a;
+      padding: 0.8rem 0.8rem 0.3rem; font-size: 0.85rem; text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    table.results tr.ours td { background: var(--ours-blue) !important; font-weight: 700; }
+    table.results tr.gain td { background: var(--ours-blue) !important; color: var(--gain-blue); font-style: italic; font-size: 0.88rem; }
+    table.results td.best { font-weight: 700; }
+    table.results td.second { text-decoration: underline; }
+    table.results tr:last-child td { border-bottom: 2px solid #444; }
+    .table-caption { font-size: 0.88rem; color: var(--muted); margin-top: 0.4rem; }
+
+    /* ---- Stats / metrics boxes ---- */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.8rem; margin: 1rem 0;
+    }
+    .stat {
+      border: 1px solid var(--section-divider); border-radius: 8px; padding: 1rem;
+      background: var(--accent-soft); text-align: center;
+    }
+    .stat .val { font-size: 1.6rem; font-weight: 700; color: var(--accent); font-family: 'Source Serif Pro', serif; line-height: 1; }
+    .stat .key { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; }
+
+    /* ---- Insight boxes ---- */
+    .insight {
+      border-left: 4px solid var(--accent); padding: 0.9rem 1.2rem; margin: 1.2rem 0;
+      background: var(--accent-soft); border-radius: 0 8px 8px 0;
+    }
+    .insight h4 { margin: 0 0 0.4rem; font-size: 1.02rem; color: var(--accent); }
+    .insight p { margin: 0; font-size: 0.95rem; }
+
+    /* ---- Case figure grid ---- */
+    .case-grid { display: grid; gap: 1.8rem; margin-top: 1rem; }
+    .case-item img {
+      width: 100%; border-radius: 6px; border: 1px solid var(--section-divider);
+    }
+
+    /* ---- Code blocks ---- */
+    pre.code {
+      background: #fbfbfd; border: 1px solid var(--accent-frame);
+      border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; line-height: 1.55;
+      color: #2e2a35;
+    }
+    pre.bibtex { background: #fdfdfe; border-color: #d8d8e0; }
+    .copy-btn {
+      float: right; margin-top: -0.3rem; padding: 0.25rem 0.6rem;
+      font-size: 0.78rem; background: white; border: 1px solid #d0d0d0;
+      border-radius: 6px; cursor: pointer; color: var(--muted);
+    }
+    .copy-btn:hover { color: var(--link); border-color: var(--link); }
+
+    /* ---- Recipe table ---- */
+    table.kv {
+      width: 100%; border-collapse: collapse; font-size: 0.92rem; margin: 0.8rem 0;
+    }
+    table.kv td { padding: 0.4rem 0.7rem; border-bottom: 1px solid #ececec; vertical-align: top; }
+    table.kv td:first-child { color: var(--muted); width: 45%; font-weight: 500; }
+    table.kv td:last-child { font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; }
+
+    /* ---- Footer ---- */
+    footer {
+      max-width: 1024px; margin: 4rem auto 2rem; padding: 1.5rem; text-align: center;
+      color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--section-divider);
+    }
+    footer a { color: var(--muted); }
+
+    /* Tag pill */
+    .pill {
+      display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent); font-size: 0.78rem; font-weight: 500;
+      margin-right: 0.4rem;
+    }
+
+    /* Math symbol size in headings */
+    .h-math { font-size: 0.95em; }
+  </style>
+</head>
+<body>
+
+  <!-- ============== NAV ============== -->
+  <nav class="topbar">
+    <div class="brand">HG-Bench</div>
+    <ul>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#dataset">Dataset</a></li>
+      <li><a href="#protocol">Protocol</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#cases">Cases</a></li>
+      <li><a href="#system">Reference SFT</a></li>
+      <li><a href="#download">Download</a></li>
+      <li><a href="#cite">Citation</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============== HERO ============== -->
+  <header class="hero">
+    <div class="venue">Preprint &middot; 2026</div>
+    <h1>HG-Bench: A Benchmark for Multi-Page Handwritten<br />Answer-Region Grounding in Automated Homework Assessment</h1>
+    <p class="authors">
+      <!-- TODO: replace with real author list, e.g.: -->
+      <!-- <a href="https://author1.site/">Author One</a><sup>1</sup>, -->
+      <!-- <a href="https://author2.site/">Author Two</a><sup>1,2</sup>, -->
+      <!-- <a href="https://author3.site/">Author Three</a><sup>2</sup> -->
+      Author One<sup>1</sup>, Author Two<sup>1,2</sup>, Author Three<sup>2</sup>
+    </p>
+    <p class="affil">
+      <!-- TODO: replace with real affiliations -->
+      <sup>1</sup>Affiliation One &nbsp;&nbsp; <sup>2</sup>Affiliation Two
+    </p>
+
+    <div class="button-row">
+      <!-- TODO: replace arXiv ID once posted -->
+      <a class="btn" href="https://arxiv.org/abs/2603.XXXXX"><i class="fa-solid fa-archive"></i> arXiv</a>
+      <a class="btn outline" href="paper.pdf"><i class="fa-solid fa-file-pdf"></i> Paper (PDF)</a>
+      <!-- TODO: replace with real GitHub repo URL once public -->
+      <a class="btn outline" href="https://github.com/USER/hg-bench"><i class="fa-brands fa-github"></i> Code</a>
+      <!-- TODO: replace with Hugging Face dataset URL -->
+      <a class="btn outline" href="https://huggingface.co/datasets/USER/HG-Bench"><i class="fa-solid fa-database"></i> Dataset</a>
+      <!-- TODO: replace with Hugging Face model URL -->
+      <a class="btn outline" href="https://huggingface.co/USER/GLM-4.6V-9B-HG-SFT"><i class="fa-brands fa-hive"></i> Checkpoint</a>
+      <a class="btn outline" href="#cite"><i class="fa-solid fa-quote-right"></i> BibTeX</a>
+    </div>
+  </header>
+
+  <!-- ============== TEASER FIGURE ============== -->
+  <div class="teaser-figure">
+    <figure>
+      <img src="emnlp_case.png" alt="HG-Bench task overview and sample diversity" onerror="this.style.display='none'; document.getElementById('teaser-fallback').style.display='block';" />
+      <div id="teaser-fallback" style="display:none; padding:2rem; background:var(--accent-soft); border-radius:6px; color:var(--muted); text-align:center;">
+        Place <code>emnlp_case.png</code> in this folder (or convert <code>emnlp_case.pdf</code> to PNG) and reload.
+      </div>
+      <figcaption>
+        <b>Figure 1. HG-Bench at a glance.</b>
+        Top: the unified evaluation prompt (left, purple), a representative two-page handwritten exam input
+        with the model's predicted question-level boxes (red) and step-level boxes (blue), and the model's
+        chain-of-thought reasoning trace identifying each answer region (right, orange).
+        Bottom: three additional HG-Bench samples spanning a function derivation, a calculation problem, and
+        a Chinese long-form writing answer — illustrating layout, handwriting density, and subject diversity.
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ============== ABSTRACT ============== -->
+  <section id="abstract">
+    <h2>Abstract</h2>
+    <p>
+      Automated homework assessment depends not only on recognizing student answers, but also on accurately
+      <b>locating where each answer and each intermediate reasoning step appears</b> in noisy, multi-page handwritten work.
+      This paper addresses the missing evaluation setting of
+      <i>page-aware, two-level answer-region grounding</i>: given a sequence of homework page images,
+      a model must localize complete answer regions and their ordered step-level subregions linked
+      by a hierarchical containment constraint.
+    </p>
+    <p>
+      We introduce <b>HG-Bench</b>, a benchmark of <b>500 human-annotated K&ndash;12 homework samples</b>
+      curated from a <b>1,489,278-image source pool</b>, paired with a page-aware evaluation protocol that
+      separately measures complete-answer localization ($\mathcal{F}_A$) and step-level decomposition ($\mathcal{F}_S^{\mu}$),
+      revealing whether models truly ground the spatial structure of student reasoning rather than merely parse visible text.
+    </p>
+    <p>
+      Across <b>nine</b> frontier closed-source APIs (GPT-5.4, Claude-Sonnet-4.6, Doubao-Seed-2.0-Pro, Gemini-3.0-Pro-Preview) and competitive open-weight VLMs (Qwen3.5-397B-A17B, GLM-5V-Turbo, Kimi K2.5, GLM-4.6V 9B),
+      <b>no zero-shot system exceeds 55.22% on $\mathcal{F}_A$ or 48.22% on $\mathcal{F}_S^{\mu}$</b>,
+      while a single-stage GLM-4.6V 9B reference fine-tuned on ~10k in-domain examples reaches <b>74.97 / 72.26</b>.
+      These results identify step-level handwritten grounding as a concrete capability gap and provide a reproducible benchmark,
+      evaluation protocol, and trained reference point for future work on automated homework assessment.
+    </p>
+
+    <div class="highlights">
+      <div class="card">
+        <span class="num">500</span>
+        <div class="label">Test Samples</div>
+        <div class="desc">Stratified across subject, grade, page count, and answer type. Curated from a 1.49M raw image pool.</div>
+      </div>
+      <div class="card">
+        <span class="num">9</span>
+        <div class="label">Baselines Evaluated</div>
+        <div class="desc">5 closed-source APIs + 4 open-weight VLMs, all queried through a unified page-aware prompt.</div>
+      </div>
+      <div class="card">
+        <span class="num">2&times;</span>
+        <div class="label">Evaluation Levels</div>
+        <div class="desc">Question-level $\mathcal{F}_A$ for coarse answer-region detection plus step-level $\mathcal{F}_S^{\mu}$ for fine-grained decomposition.</div>
+      </div>
+      <div class="card">
+        <span class="num">+24.04</span>
+        <div class="label">Step-Level F1 Headroom</div>
+        <div class="desc">Absolute gap between best zero-shot baseline (Gemini-3.0-Pro, 48.22) and our reference SFT (72.26).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== DATASET ============== -->
+  <section id="dataset">
+    <h2>The HG-Bench Dataset</h2>
+
+    <h3>Source pool &amp; collection</h3>
+    <p>
+      HG-Bench is curated from <b>1,489,278</b> anonymized student homework images spanning multiple subjects
+      and grade levels. From this raw pool, 10,420 valid samples are annotated and partitioned into a
+      500-sample held-out test set (<b>HG-Bench</b>) and a 9,920-sample training pool (<b>HG-SFT</b>),
+      with <b>250 samples held out from each channel</b>:
+    </p>
+    <ul>
+      <li><b>Enterprise channel</b> (6,765 samples) — formal answer sheets and standardized exam grading,
+      multi-page samples with a high proportion of multi-step problems.</li>
+      <li><b>Consumer channel</b> (3,655 samples) — homework photos uploaded by general users of a
+      public-facing consumer homework-photo application, typically single-page with in-the-wild capture variation.</li>
+    </ul>
+
+    <h3>Annotation</h3>
+    <p>
+      <b>12 trained annotators</b> draw question-level and ordered step-level boxes under a strict hierarchical
+      containment rule, with <b>5 senior reviewers</b> independently accepting or returning each annotation.
+      <b>Inter-annotator agreement</b> on a 50-sample subset annotated by two independent annotators:
+      mean IoU <b>0.86</b>, 85% of boxes match at $\mathrm{IoU} = 0.5$, Cohen's $\kappa = 0.83$ for binary box-matching,
+      Fleiss' $\kappa = 0.81$ for discrete annotation fields (question-type, containment, ordering) — all in the
+      <i>substantial agreement</i> band.
+    </p>
+
+    <div class="teaser-figure">
+      <figure>
+        <img src="figure2.png" alt="HG-Bench data engine pipeline" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display:none; padding:1.5rem; background:var(--accent-soft); border-radius:6px; color:var(--muted); text-align:center; font-size:0.9rem;">
+          Place <code>figure2.png</code> (data-engine pipeline) in this folder.
+        </div>
+        <figcaption>
+          <b>Figure 2. HG-Bench data engine.</b> Four stages: (I) collection from enterprise B2B scans and a
+          consumer photo application; (II) filtering for usability and student-answer content; (III) two-level
+          hierarchical annotation; (IV) verification and stratified split into HG-Bench (test) and HG-SFT (train).
+        </figcaption>
+      </figure>
+    </div>
+
+    <h3>Summary statistics</h3>
+    <div class="stats-grid">
+      <div class="stat"><div class="val">500</div><div class="key">Samples</div></div>
+      <div class="stat"><div class="val">5</div><div class="key">Subjects</div></div>
+      <div class="stat"><div class="val">1.8</div><div class="key">Mean pages / sample</div></div>
+      <div class="stat"><div class="val">5.2</div><div class="key">Mean question boxes / page</div></div>
+      <div class="stat"><div class="val">2.9</div><div class="key">Mean step boxes / question (when present)</div></div>
+      <div class="stat"><div class="val">0.34</div><div class="key">Fraction of step-bearing pages</div></div>
+    </div>
+
+    <div class="teaser-figure">
+      <figure>
+        <img src="figure3.png" alt="HG-Bench composition figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display:none; padding:1.5rem; background:var(--accent-soft); border-radius:6px; color:var(--muted); text-align:center; font-size:0.9rem;">
+          Place <code>figure3.png</code> (composition distribution figure) in this folder.
+        </div>
+        <figcaption>
+          <b>Figure 3. HG-Bench composition.</b> (a) Answers per sample follow a long-tail distribution in
+          both channels. (b) Multi-step problems are over-represented in the enterprise channel. (c) Page count
+          per sample. (d) Question-type composition. The 500-sample benchmark is stratified along these four axes.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============== TASK ============== -->
+  <section id="task">
+    <h2>Task Formulation</h2>
+    <p>
+      Given a sequence of $P$ handwritten homework page images $\{\mathbf{I}_p\}_{p=1}^{P}$, the model must
+      output a JSON array $\{q_i\}_{i=1}^{N}$ where each element corresponds to one question and contains:
+    </p>
+    <ul>
+      <li>a fixed type field <code>complete_answer_box</code>,</li>
+      <li>a page index $p_i \in \{1,\dots,P\}$,</li>
+      <li>a question-level box $\mathbf{b}_i \in [0,1000]^4$ in <code>xyxy</code> normalized format, enclosing the
+      full handwritten answer to the question,</li>
+      <li>an optional ordered list of step boxes $\{s_{i,j}\}_{j=1}^{K_i}$, each carrying a
+      <code>step_id</code> (one-indexed in the student's writing order) and its own box $\mathbf{b}_{i,j}$.</li>
+    </ul>
+    <p>
+      Every step box must be <b>fully contained within its parent question-level box</b> (hierarchical consistency).
+      A schematic example of the expected output:
+    </p>
+
+    <pre class="code">[
+  { "box_2d": [100, 200, 180, 300],
+    "type": "complete_answer_box" },
+  { "box_2d": [400, 220, 490, 320],
+    "type": "complete_answer_box",
+    "steps": [
+      {"box_2d": [410, 230, 440, 320], "step_id": 1},
+      {"box_2d": [450, 230, 480, 320], "step_id": 2}
+    ]
+  },
+  { "box_2d": [500, 220, 580, 780],
+    "type": "complete_answer_box",
+    "steps": [
+      {"box_2d": [510, 230, 540, 780], "step_id": 1},
+      {"box_2d": [550, 230, 580, 780], "step_id": 2},
+      {"box_2d": [590, 230, 620, 780], "step_id": 3}
+    ]
+  }
+]</pre>
+  </section>
+
+  <!-- ============== EVAL PROTOCOL ============== -->
+  <section id="protocol">
+    <h2>Page-Aware Evaluation Protocol</h2>
+
+    <p>
+      Unlike standard grounding tasks that flatten all bounding boxes across an entire document, HG-Bench's
+      evaluation operates strictly at the <b>page level</b>: within each page, we perform greedy one-to-one
+      matching between ground-truth $\mathcal{G}$ and predicted $\mathcal{P}$ boxes under an IoU constraint
+      ($\mathrm{IoU} \geq 0.5$), yielding per-page TP, FP, FN counts.
+    </p>
+
+    <h3>Primary metrics</h3>
+
+    <div class="insight">
+      <h4>$\mathcal{F}_A$ &mdash; Complete-Answer Area F$_1$ (macro)</h4>
+      <p>
+        Per-page box-level F$_1$ averaged within each multi-page sample, then macro-averaged across all
+        successfully evaluated samples:
+      </p>
+      $$\mathcal{F}_A = \frac{1}{|\mathcal{S}_{\text{succ}}|}\sum_{s \in \mathcal{S}_{\text{succ}}}
+      \left(\frac{1}{|\mathcal{M}_s|}\sum_{m \in \mathcal{M}_s} \mathrm{F}_1(s,m)\right) \times 100$$
+    </div>
+
+    <div class="insight">
+      <h4>$\mathcal{F}_S^{\mu}$ &mdash; Step-Level Micro F$_1$</h4>
+      <p>
+        Step boxes are highly sparse (many pages contain none). We micro-aggregate step-level TP, FP, FN
+        <b>only over step-bearing pages</b> to avoid bias from many empty pages, computing a single unified F$_1$.
+      </p>
+    </div>
+
+    <h3>Supplementary metrics (reported in Table 1, defined in Appendix D)</h3>
+    <ul>
+      <li><b>$\mathcal{F}_S^{M}$</b> &mdash; macro step F$_1$ averaged over step-bearing samples (complements $\mathcal{F}_S^{\mu}$).</li>
+      <li><b>$\mathrm{Succ}\%$</b> &mdash; parse-success rate (fraction of samples returning a valid JSON array after at most one retry).</li>
+      <li><b>$\bar{\mathcal{S}}$</b> &mdash; unified composite score averaged over all 500 samples (failed parses count as 0); exposes the cost of format failures.</li>
+      <li><b>$\mathrm{Rep}\%$</b> &mdash; fraction of outputs containing repeated textual or structural patterns (lower is better).</li>
+    </ul>
+  </section>
+
+  <!-- ============== RESULTS ============== -->
+  <section id="results">
+    <h2>Main Results</h2>
+    <div class="results-table-wrap">
+      <table class="results">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>$\mathcal{F}_A$</th>
+            <th>$\mathcal{F}_S^{\mu}$</th>
+            <th>$\mathcal{F}_S^{M}$</th>
+            <th>Succ%</th>
+            <th>$\bar{\mathcal{S}}$</th>
+            <th>Rep%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="group-header"><td colspan="7">Closed-source frontier APIs</td></tr>
+          <tr><td>GPT-5.4</td><td>14.91</td><td>1.55</td><td>1.38</td><td>100.0</td><td>8.12</td><td class="best">0.4</td></tr>
+          <tr><td>Claude-Sonnet-4.6</td><td>16.83</td><td>1.63</td><td>1.21</td><td>99.2</td><td>8.76</td><td>2.8</td></tr>
+          <tr><td>Doubao-Seed-2.0-Pro (2026-02-15)</td><td>52.65</td><td>44.78</td><td class="second">42.59</td><td>49.4</td><td>21.22</td><td class="best">0.0</td></tr>
+          <tr><td>Doubao-Seed-2.0-Pro (2026-04-01)</td><td class="second">55.22</td><td>40.11</td><td>34.88</td><td>99.8</td><td class="second">42.70</td><td class="second">0.2</td></tr>
+          <tr><td>Gemini-3.0-Pro-Preview</td><td>50.90</td><td class="second">48.22</td><td>37.58</td><td>100.0</td><td>42.33</td><td>6.0</td></tr>
+          <tr class="group-header"><td colspan="7">Open-weight baselines</td></tr>
+          <tr><td>Qwen3.5-397B-A17B</td><td>42.71</td><td>18.15</td><td>17.73</td><td>94.2</td><td>32.73</td><td>4.0</td></tr>
+          <tr><td>GLM-5V-Turbo</td><td>46.69</td><td>26.29</td><td>23.78</td><td>100.0</td><td>40.10</td><td>0.4</td></tr>
+          <tr><td>Kimi K2.5</td><td>31.21</td><td>7.42</td><td>7.21</td><td>79.4</td><td>20.18</td><td>1.0</td></tr>
+          <tr><td>GLM-4.6V 9B (base)</td><td>34.15</td><td>7.65</td><td>4.60</td><td>100.0</td><td>29.46</td><td>3.8</td></tr>
+          <tr class="group-header"><td colspan="7">Reference SFT system (Ours)</td></tr>
+          <tr class="ours"><td>GLM-4.6V-9B + HG-SFT</td><td class="best">74.97</td><td class="best">72.26</td><td class="best">48.25</td><td>100.0</td><td class="best">71.53</td><td>0.8</td></tr>
+          <tr class="gain"><td>&Delta; over best prior</td><td>&uarr;&nbsp;19.75</td><td>&uarr;&nbsp;24.04</td><td>&uarr;&nbsp;5.66</td><td>&ndash;</td><td>&uarr;&nbsp;28.83</td><td>&ndash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <b>Table 1. Main results on HG-Bench</b> ($N = 500$ samples for every model).
+      <b>Bold</b> = best; <u>underline</u> = second-best.
+      All localization values scaled by &times;100.
+    </p>
+
+    <h3>Key insights</h3>
+
+    <div class="insight">
+      <h4>1. Frontier VLMs plateau well below a trained reference, and scale alone does not close the gap.</h4>
+      <p>
+        No zero-shot baseline &mdash; closed- or open-source &mdash; exceeds <b>55.22 on $\mathcal{F}_A$ or 48.22 on $\mathcal{F}_S^{\mu}$</b>.
+        The ~10k-example reference system reaches 74.97 / 72.26, leaving headroom of roughly 20 and 24 absolute points.
+        The 397B-parameter Qwen3.5-397B-A17B remains at 42.71 / 18.15, <b>weaker than several smaller closed APIs</b> and
+        below the consumer-class GLM-5V-Turbo on $\mathcal{F}_S^{\mu}$.
+      </p>
+    </div>
+
+    <div class="insight">
+      <h4>2. Step-level grounding is the dominant capability gap.</h4>
+      <p>
+        Every zero-shot baseline degrades sharply from $\mathcal{F}_A$ to $\mathcal{F}_S^{\mu}$. Open-weight Kimi K2.5
+        and GLM-4.6V 9B fall to single-digit step scores, and even commercial GPT-5.4 and Claude-Sonnet-4.6
+        nearly collapse (1.55 and 1.63). The reference SFT system narrows the $\mathcal{F}_A \to \mathcal{F}_S^{\mu}$ gap
+        to ~3 points &mdash; we accordingly <b>recommend $\mathcal{F}_S^{\mu}$ as the primary ranking axis</b>.
+      </p>
+    </div>
+
+    <div class="insight">
+      <h4>3. Targeted SFT recovers genuinely hard cases.</h4>
+      <p>
+        Of the 115 universally-missed samples at $T = 0.5$ (no baseline reaches title-F$_1 \geq 0.5$), the reference SFT
+        reaches title-F$_1 \geq 0.5$ on <b>68 samples (59.1%)</b>. At the stricter $T = 0.7$ it still rescues 45.7% of the
+        223 universally-missed samples &mdash; the SFT delta is not a uniform shift over easy samples; it specifically
+        recovers samples beyond the reach of frontier zero-shot systems.
+      </p>
+    </div>
+
+    <h3>Inter-model agreement</h3>
+    <p>
+      Per-sample title-F$_1$ across the nine baselines reveals a smooth difficulty gradient and confirms HG-Bench is
+      far from saturated:
+    </p>
+    <ul>
+      <li>At $T = 0.5$, only <b>3 / 500</b> samples (0.6%) are solved by all nine baselines; <b>115 / 500</b> (23.0%) are missed by every one.</li>
+      <li>At the stricter $T = 0.7$, the universally-missed set rises to <b>44.6%</b>, while the all-passed set remains at 0.6%.</li>
+      <li>Among the 115 universally-missed samples, 59 (51%) come from enterprise multi-page inputs and 56 (49%) from consumer single-page &mdash; <b>hard samples are not dominated by multi-page inputs</b>; handwriting density and step decomposition remain the main residual challenges.</li>
+    </ul>
+  </section>
+
+  <!-- ============== CASES ============== -->
+  <section id="cases">
+    <h2>Qualitative Cases</h2>
+    <p>
+      Each case below shows the same multi-column layout: ground truth on the left, several representative
+      baselines in the middle, our reference SFT on the right. Question-level boxes and step-level boxes are
+      drawn in contrasting colors.
+    </p>
+
+    <div class="case-grid">
+      <div class="case-item">
+        <img src="emnlp_case_hardest.png" alt="Universal rescue case" onerror="this.alt='Place emnlp_case_hardest.png in this folder.'">
+        <figcaption>
+          <b>Case 1. Universally-missed sample (universal rescue).</b>
+          One of the 115 samples on which no zero-shot baseline reaches title-F$_1 \geq 0.5$.
+          Every closed-source frontier API and every open-weight baseline produce highly fragmented or
+          mis-localized boxes; the reference SFT recovers both the question-level answer regions and the
+          ordered step decompositions.
+        </figcaption>
+      </div>
+      <div class="case-item">
+        <img src="emnlp_case_multipage.png" alt="Multi-page case" onerror="this.alt='Place emnlp_case_multipage.png in this folder.'">
+        <figcaption>
+          <b>Case 2. Multi-page enterprise sample.</b>
+          An enterprise answer sheet spanning two pages, illustrating page-misalignment and index-shuffling
+          failures: several baselines attribute boxes to the wrong page index or emit step IDs out of writing
+          order across the page break.
+        </figcaption>
+      </div>
+      <div class="case-item">
+        <img src="emnlp_case_3_over.png" alt="Over-segmentation case" onerror="this.alt='Place emnlp_case_3_over.png in this folder.'">
+        <figcaption>
+          <b>Case 3. Over-segmentation of step boxes.</b>
+          A single multi-step derivation is split into too many step boxes by several baselines
+          (e.g., each "=" or arithmetic operator gets its own box), inflating the step count and confusing
+          downstream per-step grading.
+        </figcaption>
+      </div>
+      <div class="case-item">
+        <img src="emnlp_case_3_under.png" alt="Under-segmentation case" onerror="this.alt='Place emnlp_case_3_under.png in this folder.'">
+        <figcaption>
+          <b>Case 4. Under-segmentation of step boxes.</b>
+          The complementary failure: several distinct derivation steps are merged into one large box, losing
+          the per-step grading signal even when the overall question-level box is roughly correct.
+        </figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== REFERENCE SFT SYSTEM ============== -->
+  <section id="system">
+    <h2>Reference SFT System</h2>
+    <p>
+      <span class="pill">Single-stage SFT</span>
+      <span class="pill">No RL</span>
+      <span class="pill">No synthetic CPT</span>
+      <span class="pill">~24 GPU-hours</span>
+    </p>
+    <p>
+      To verify learnability and provide a reproducible lower-bound reference, we fine-tune <b>GLM-4.6V 9B</b>
+      on the 9,920-sample <b>HG-SFT</b> training pool using single-stage supervised fine-tuning &mdash; no reinforcement
+      learning, no synthetic continued pre-training, and no out-of-domain data mixing.
+      <b>Train/test deduplication</b>: every training image is checked against the test pool by perceptual hashing
+      (pHash, Hamming distance $\leq 5$) plus exact metadata match; before dedup the raw training pool contained
+      14,264 samples; pHash filtering removed 4,344 near-duplicates, yielding the final 9,920.
+    </p>
+
+    <h3>Hyperparameters</h3>
+    <table class="kv">
+      <tr><td>Base checkpoint</td><td>GLM-4.6V 9B</td></tr>
+      <tr><td>Precision</td><td>bfloat16</td></tr>
+      <tr><td>Sequence length</td><td>32,768</td></tr>
+      <tr><td>Visual tokens per image</td><td>up to 10,000 (variable shape, jitter 0.75&ndash;1.25)</td></tr>
+      <tr><td>Optimizer</td><td>AdamW, $(\beta_1,\beta_2)=(0.9, 0.95)$, $\epsilon = 10^{-8}$</td></tr>
+      <tr><td>Weight decay</td><td>0.1</td></tr>
+      <tr><td>Gradient clipping</td><td>1.0</td></tr>
+      <tr><td>LR schedule</td><td>cosine, 30-step warmup</td></tr>
+      <tr><td>Peak / min LR</td><td>$1\times10^{-6}$ / $5\times10^{-7}$</td></tr>
+      <tr><td>Global batch size</td><td>32 (micro-batch 1)</td></tr>
+      <tr><td>Training steps</td><td>930 (= 3 epochs &times; 9,920 examples)</td></tr>
+      <tr><td>Hardware</td><td>1 node, 8&times;H100-80GB</td></tr>
+      <tr><td>Tensor / Context / Sequence parallel</td><td>2 / 2 / enabled (incl. ViT tower)</td></tr>
+      <tr><td>Wall-clock time</td><td>~3 hours</td></tr>
+      <tr><td>Total compute</td><td>~24 GPU-hours</td></tr>
+    </table>
+  </section>
+
+  <!-- ============== REPRODUCIBILITY ============== -->
+  <section id="download">
+    <h2>Download &amp; Reproducibility</h2>
+    <p>The following artifacts will be released upon acceptance under terms permitting educational research use:</p>
+    <ul>
+      <li><b>HG-Bench test set</b> — 500 multi-page samples with question-level and step-level box annotations, JSON schema, and per-page metadata.</li>
+      <li><b>HG-SFT training pool</b> — 9,920 deduplicated samples sharing the annotation protocol with HG-Bench.</li>
+      <li><b>Reference checkpoint</b> — the fine-tuned GLM-4.6V-9B + HG-SFT model reaching 74.97 / 72.26.</li>
+      <li><b>Evaluation harness</b> — page-aware greedy IoU matching, coordinate-axis auto-calibration, format-tolerant JSON parser with single-retry, and the unified prompt template.</li>
+      <li><b>Anonymization &amp; ethics</b> — all images are anonymized; no personally identifying information about individual students is exposed. Intended use is teacher-side grading assistance, not automated student evaluation.</li>
+    </ul>
+
+    <h3>Prompt template (English translation)</h3>
+    <pre class="code">You are a high-precision visual annotation expert for educational
+homework and exam papers. Your task is to identify each student's
+handwritten answer regions in the provided images and output two
+types of bounding boxes, with coordinates in [xmin, ymin, xmax, ymax]
+format normalized to [0, 1000].
+
+Box types
+  (a) complete_answer_box: tightly contains the student's entire answer
+      to one question. For multiple-choice and true/false items, if both
+      a bubble-fill region and a hand-written letter answer are present,
+      prefer the bubble-fill region.
+  (b) step_box: used for multi-step answers (computation, derivation,
+      multi-blank fill-in). Each step or blank is boxed separately and
+      assigned a step_id starting from 1 in the student's writing order.
+      Every step box must be nested inside the corresponding
+      complete_answer_box.
+
+Annotation rules
+  - Box only the student's own marks; do not box printed question text
+    or teacher corrections.
+  - Step boxes must fully contain the handwritten content of that step
+    or blank.
+  - For a multi-blank item, each blank becomes a separate step box in
+    left-to-right, top-to-bottom order.
+
+Output format
+  Emit a JSON list. Each element is one question-level object with
+  fields box_2d, type (fixed to complete_answer_box), and an optional
+  steps list whose elements each carry their own box_2d and integer
+  step_id. Items must be emitted in the order the student answered.
+  Coordinates must tightly bound the handwriting without cropping any
+  character.</pre>
+  </section>
+
+  <!-- ============== CITATION ============== -->
+  <section id="cite">
+    <h2>Citation</h2>
+    <p>If you find HG-Bench useful in your research, please consider citing:</p>
+    <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('bib').innerText).then(()=>{this.innerText='✓ Copied';setTimeout(()=>this.innerText='Copy',2000);})">Copy</button>
+    <pre class="code bibtex" id="bib">@article{hgbench2026,
+  title   = {{HG-Bench}: A Benchmark for Multi-Page Handwritten Answer-Region Grounding
+             in Automated Homework Assessment},
+  author  = {Author One and Author Two and Author Three},
+  journal = {arXiv preprint arXiv:2603.XXXXX},
+  year    = {2026}
+}</pre>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer>
+    <p>
+      Comments and feedback are welcome &mdash; please open an issue on
+      <a href="https://github.com/USER/hg-bench">GitHub</a> or contact the corresponding author.
+    </p>
+    <p>
+      Page template &copy; 2026 HG-Bench authors &middot;
+      <a href="paper.pdf">Paper</a> &middot;
+      <a href="#abstract">Top</a>
+    </p>
+  </footer>
+
+</body>
+</html>
