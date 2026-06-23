@@ -1,0 +1,192 @@
+[
+  {
+    "display_name": "GPT-5.4",
+    "result_dir": "gpt-5.4-homework-grounding-500/loli:gpt-5.4",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "loli:gpt-5.4",
+      "results": {
+        "report": 8.12,
+        "title_f1": 14.91,
+        "step_f1_micro_gt_step_pages": 1.55,
+        "step_f1_macro_gt_step_samples": 1.38,
+        "success_rate": 1.0,
+        "report_all": 8.12,
+        "num_total": 500,
+        "repeat_rate": 0.004,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "Claude-Sonnet-4.6",
+    "result_dir": "claude-sonnet-4-6-cc-homework-grounding-500/loli:claude-sonnet-4-6-cc",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "loli:claude-sonnet-4-6-cc",
+      "results": {
+        "report": 8.83,
+        "title_f1": 16.83,
+        "step_f1_micro_gt_step_pages": 1.63,
+        "step_f1_macro_gt_step_samples": 1.21,
+        "success_rate": 0.992,
+        "report_all": 8.75936,
+        "num_total": 500,
+        "repeat_rate": 0.028,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "Doubao-Seed-2.0-Pro (2026-02-15)",
+    "result_dir": "homework_doubao-seed-2-0-pro-260215/loli:gemini-3.1-pro-preview",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "loli:gemini-3.1-pro-preview",
+      "results": {
+        "report": 42.95,
+        "title_f1": 52.65,
+        "step_f1_micro_gt_step_pages": 44.78,
+        "step_f1_macro_gt_step_samples": 42.59,
+        "success_rate": 0.494,
+        "report_all": 21.2173,
+        "num_total": 500,
+        "repeat_rate": 0.0,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "Doubao-Seed-2.0-Pro (2026-04-01)",
+    "result_dir": "homework_doubao-seed-2-0-pro-260215_0401/loli:doubao-seed-2-0-pro-260215",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "loli:doubao-seed-2-0-pro-260215",
+      "results": {
+        "report": 42.79,
+        "title_f1": 55.33,
+        "step_f1_micro_gt_step_pages": 40.11,
+        "step_f1_macro_gt_step_samples": 34.88,
+        "success_rate": 0.998,
+        "report_all": 42.70442,
+        "num_total": 500,
+        "repeat_rate": 0.002,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "Gemini-3.0-Pro-Preview",
+    "result_dir": "gemini-3-pro-preview_yxyx/loli:gemini-3-pro-preview",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "loli:gemini-3-pro-preview",
+      "results": {
+        "report": 42.33,
+        "title_f1": 50.9,
+        "step_f1_micro_gt_step_pages": 48.22,
+        "step_f1_macro_gt_step_samples": 37.58,
+        "success_rate": 1.0,
+        "report_all": 42.33,
+        "num_total": 500,
+        "repeat_rate": 0.06,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "Qwen3.5-397B-A17B",
+    "result_dir": "homework_qwen3.5-397b-a17b_yxyx/loli:qwen3.5-397b-a17b",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "loli:qwen3.5-397b-a17b",
+      "results": {
+        "report": 34.74,
+        "title_f1": 42.71,
+        "step_f1_micro_gt_step_pages": 18.15,
+        "step_f1_macro_gt_step_samples": 17.73,
+        "success_rate": 0.942,
+        "report_all": 32.72508,
+        "num_total": 500,
+        "repeat_rate": 0.04,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "GLM-5V-Turbo",
+    "result_dir": "GLM-4.7v-rl /GLM-4.6V-Flash-RL-merge5",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "GLM-4.6V-Flash-RL-merge5",
+      "results": {
+        "report": 40.1,
+        "title_f1": 46.69,
+        "step_f1_micro_gt_step_pages": 26.29,
+        "step_f1_macro_gt_step_samples": 23.78,
+        "success_rate": 1.0,
+        "report_all": 40.1,
+        "num_total": 500,
+        "repeat_rate": 0.004,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "Kimi K2.5",
+    "result_dir": "kimi-k2.5-homework-grounding-500/loli:kimi-k2.5",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "loli:kimi-k2.5",
+      "results": {
+        "report": 25.41,
+        "title_f1": 31.21,
+        "step_f1_micro_gt_step_pages": 7.42,
+        "step_f1_macro_gt_step_samples": 7.21,
+        "success_rate": 0.794,
+        "report_all": 20.17554,
+        "num_total": 500,
+        "repeat_rate": 0.01,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "GLM-4.6V 9B (base)",
+    "result_dir": "GLM-4.7V-GA-9B-RL-20260324/GLM-4.6V-Flash-RL-merge5",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "GLM-4.6V-Flash-RL-merge5",
+      "results": {
+        "report": 29.46,
+        "title_f1": 34.15,
+        "step_f1_micro_gt_step_pages": 7.65,
+        "step_f1_macro_gt_step_samples": 4.6,
+        "success_rate": 1.0,
+        "report_all": 29.46,
+        "num_total": 500,
+        "repeat_rate": 0.038,
+        "format_error_rate": 1.0
+      }
+    }
+  },
+  {
+    "display_name": "GLM-4.6V-9B + HG-SFT",
+    "result_dir": "test_homework_smoke/GLM-4.6V-Flash-RL-merge5",
+    "scores": {
+      "task": "HomeworkGrounding_500",
+      "model": "GLM-4.6V-Flash-RL-merge5",
+      "results": {
+        "report": 71.53,
+        "title_f1": 74.97,
+        "step_f1_micro_gt_step_pages": 72.26,
+        "step_f1_macro_gt_step_samples": 48.25,
+        "success_rate": 1.0,
+        "report_all": 71.53,
+        "num_total": 500,
+        "repeat_rate": 0.008,
+        "format_error_rate": 1.0
+      }
+    }
+  }
+]
