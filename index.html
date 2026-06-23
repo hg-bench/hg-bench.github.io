@@ -104,6 +104,8 @@
     .btn.outline:hover { border-color: var(--link); color: var(--link); }
     .btn.disabled { background: #c5c5c5; color: white; cursor: not-allowed; }
     .btn.disabled:hover { background: #c5c5c5; transform: none; }
+    .btn.outline.disabled { background: #f5f5f5; color: #999; border-color: #ddd; cursor: not-allowed; }
+    .btn.outline.disabled:hover { background: #f5f5f5; color: #999; border-color: #ddd; transform: none; }
 
     /* ---- Sections ---- */
     section { max-width: 1024px; margin: 0 auto; padding: 3rem 1.5rem; }
@@ -281,15 +283,11 @@
     </p>
 
     <div class="button-row">
-      <!-- TODO: replace arXiv ID once posted -->
-      <a class="btn" href="https://arxiv.org/abs/2603.XXXXX"><i class="fa-solid fa-archive"></i> arXiv</a>
+      <span class="btn disabled" title="Preprint link will be added when available"><i class="fa-solid fa-archive"></i> arXiv (soon)</span>
       <a class="btn outline" href="paper.pdf"><i class="fa-solid fa-file-pdf"></i> Paper (PDF)</a>
-      <!-- TODO: replace with real GitHub repo URL once public -->
       <a class="btn outline" href="https://github.com/hg-bench/hg-bench.github.io"><i class="fa-brands fa-github"></i> Code</a>
-      <!-- TODO: replace with Hugging Face dataset URL -->
-      <a class="btn outline" href="https://huggingface.co/datasets/USER/HG-Bench"><i class="fa-solid fa-database"></i> Dataset</a>
-      <!-- TODO: replace with Hugging Face model URL -->
-      <a class="btn outline" href="https://huggingface.co/USER/GLM-4.6V-9B-HG-SFT"><i class="fa-brands fa-hive"></i> Checkpoint</a>
+      <span class="btn outline disabled" title="Dataset release coming soon"><i class="fa-solid fa-database"></i> Dataset (soon)</span>
+      <span class="btn outline disabled" title="Checkpoint release coming soon"><i class="fa-brands fa-hive"></i> Checkpoint (soon)</span>
       <a class="btn outline" href="#cite"><i class="fa-solid fa-quote-right"></i> BibTeX</a>
     </div>
   </header>
@@ -297,10 +295,7 @@
   <!-- ============== TEASER FIGURE ============== -->
   <div class="teaser-figure">
     <figure>
-      <img src="emnlp_case.png" alt="HG-Bench task overview and sample diversity" onerror="this.style.display='none'; document.getElementById('teaser-fallback').style.display='block';" />
-      <div id="teaser-fallback" style="display:none; padding:2rem; background:var(--accent-soft); border-radius:6px; color:var(--muted); text-align:center;">
-        Place <code>emnlp_case.png</code> in this folder (or convert <code>emnlp_case.pdf</code> to PNG) and reload.
-      </div>
+      <img src="emnlp_case.png" alt="HG-Bench task overview and sample diversity" />
       <figcaption>
         <b>Figure 1. HG-Bench at a glance.</b>
         Top: the unified evaluation prompt (left, purple), a representative two-page handwritten exam input
@@ -391,14 +386,11 @@
 
     <div class="teaser-figure">
       <figure>
-        <img src="figure2.png" alt="HG-Bench data engine pipeline" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-        <div style="display:none; padding:1.5rem; background:var(--accent-soft); border-radius:6px; color:var(--muted); text-align:center; font-size:0.9rem;">
-          Place <code>figure2.png</code> (data-engine pipeline) in this folder.
-        </div>
         <figcaption>
           <b>Figure 2. HG-Bench data engine.</b> Four stages: (I) collection from enterprise B2B scans and a
           consumer photo application; (II) filtering for usability and student-answer content; (III) two-level
           hierarchical annotation; (IV) verification and stratified split into HG-Bench (test) and HG-SFT (train).
+          See the paper for the full pipeline figure.
         </figcaption>
       </figure>
     </div>
@@ -415,14 +407,11 @@
 
     <div class="teaser-figure">
       <figure>
-        <img src="figure3.png" alt="HG-Bench composition figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-        <div style="display:none; padding:1.5rem; background:var(--accent-soft); border-radius:6px; color:var(--muted); text-align:center; font-size:0.9rem;">
-          Place <code>figure3.png</code> (composition distribution figure) in this folder.
-        </div>
         <figcaption>
           <b>Figure 3. HG-Bench composition.</b> (a) Answers per sample follow a long-tail distribution in
           both channels. (b) Multi-step problems are over-represented in the enterprise channel. (c) Page count
           per sample. (d) Question-type composition. The 500-sample benchmark is stratified along these four axes.
+          See the paper for the full composition figure.
         </figcaption>
       </figure>
     </div>
@@ -604,7 +593,7 @@
 
     <div class="case-grid">
       <div class="case-item">
-        <img src="emnlp_case_hardest.png" alt="Universal rescue case" onerror="this.alt='Place emnlp_case_hardest.png in this folder.'">
+        <img src="emnlp_case_hardest.png" alt="Universal rescue case">
         <figcaption>
           <b>Case 1. Universally-missed sample (universal rescue).</b>
           One of the 115 samples on which no zero-shot baseline reaches title-F$_1 \geq 0.5$.
@@ -614,7 +603,7 @@
         </figcaption>
       </div>
       <div class="case-item">
-        <img src="emnlp_case_multipage.png" alt="Multi-page case" onerror="this.alt='Place emnlp_case_multipage.png in this folder.'">
+        <img src="emnlp_case_multipage.png" alt="Multi-page case">
         <figcaption>
           <b>Case 2. Multi-page enterprise sample.</b>
           An enterprise answer sheet spanning two pages, illustrating page-misalignment and index-shuffling
@@ -623,7 +612,7 @@
         </figcaption>
       </div>
       <div class="case-item">
-        <img src="emnlp_case_3_over.png" alt="Over-segmentation case" onerror="this.alt='Place emnlp_case_3_over.png in this folder.'">
+        <img src="emnlp_case_3_over.png" alt="Over-segmentation case">
         <figcaption>
           <b>Case 3. Over-segmentation of step boxes.</b>
           A single multi-step derivation is split into too many step boxes by several baselines
@@ -632,7 +621,7 @@
         </figcaption>
       </div>
       <div class="case-item">
-        <img src="emnlp_case_3_under.png" alt="Under-segmentation case" onerror="this.alt='Place emnlp_case_3_under.png in this folder.'">
+        <img src="emnlp_case_3_under.png" alt="Under-segmentation case">
         <figcaption>
           <b>Case 4. Under-segmentation of step boxes.</b>
           The complementary failure: several distinct derivation steps are merged into one large box, losing
@@ -683,12 +672,12 @@
   <!-- ============== REPRODUCIBILITY ============== -->
   <section id="download">
     <h2>Download &amp; Reproducibility</h2>
-    <p>The following artifacts will be released upon acceptance under terms permitting educational research use:</p>
+    <p>The following artifacts are available or planned for public release under terms permitting educational research use:</p>
     <ul>
-      <li><b>HG-Bench test set</b> — 500 multi-page samples with question-level and step-level box annotations, JSON schema, and per-page metadata.</li>
-      <li><b>HG-SFT training pool</b> — 9,920 deduplicated samples sharing the annotation protocol with HG-Bench.</li>
-      <li><b>Reference checkpoint</b> — the fine-tuned GLM-4.6V-9B + HG-SFT model reaching 74.97 / 72.26.</li>
-      <li><b>Evaluation harness</b> — page-aware greedy IoU matching, coordinate-axis auto-calibration, format-tolerant JSON parser with single-retry, and the unified prompt template.</li>
+      <li><b>Evaluation harness</b> — available in this repository: <code>evaluate.py</code>, <code>prompt.py</code>, and sample files in <code>examples/</code>.</li>
+      <li><b>HG-Bench test set</b> — 500 multi-page samples with question-level and step-level box annotations (coming soon on Hugging Face).</li>
+      <li><b>HG-SFT training pool</b> — 9,920 deduplicated samples sharing the annotation protocol with HG-Bench (coming soon).</li>
+      <li><b>Reference checkpoint</b> — the fine-tuned GLM-4.6V-9B + HG-SFT model reaching 74.97 / 72.26 (coming soon).</li>
       <li><b>Anonymization &amp; ethics</b> — all images are anonymized; no personally identifying information about individual students is exposed. Intended use is teacher-side grading assistance, not automated student evaluation.</li>
     </ul>
 
@@ -750,7 +739,7 @@ Output format
       <a href="https://github.com/hg-bench/hg-bench.github.io">GitHub</a> or contact the corresponding author.
     </p>
     <p>
-      Page template &copy; 2026 HG-Bench authors &middot;
+      &copy; 2026 HG-Bench authors &middot;
       <a href="paper.pdf">Paper</a> &middot;
       <a href="#abstract">Top</a>
     </p>
