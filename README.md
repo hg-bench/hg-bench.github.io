@@ -1,30 +1,50 @@
-# HG-Bench
+<p align="center">
+  <img src="emnlp_case.png" width="720" alt="HG-Bench task overview"/>
+</p>
 
-Official repository for **HG-Bench: A Benchmark for Multi-Page Handwritten Answer-Region Grounding in Automated Homework Assessment**.
+<h1 align="center">HG-Bench</h1>
 
-- **Project page:** [https://hg-bench.github.io/](https://hg-bench.github.io/)
-- **Paper (PDF):** [paper.pdf](paper.pdf)
+<p align="center">
+  <b>Multi-Page Handwritten Answer-Region Grounding for Automated Homework Assessment</b>
+</p>
 
-## Repository layout
+<p align="center">
+  <a href="https://hg-bench.github.io/"><img src="https://img.shields.io/badge/Project-Page-6d4cb1?style=for-the-badge" alt="Project Page"></a>
+  <a href="paper.pdf"><img src="https://img.shields.io/badge/Paper-PDF-red?style=for-the-badge" alt="Paper PDF"></a>
+  <a href="evaluate.py"><img src="https://img.shields.io/badge/Code-evaluate.py-1d1d1f?style=for-the-badge" alt="Evaluator"></a>
+  <img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.8+">
+</p>
 
-```
-├── index.html              # project page (served at hg-bench.github.io)
-├── paper.pdf               # preprint PDF
-├── evaluate.py             # official evaluator (entry point)
-├── prompt.py               # official VLM prompt (Chinese; EN translation included)
-├── examples/
-│   ├── sample_gt.jsonl
-│   ├── sample_predictions.jsonl
-│   └── sample_combined.jsonl
-└── results/
-    └── homework_grounding_500_all_metrics.json   # canonical paper numbers
-```
+<p align="center">
+  Chuangxin Zhao · Boyan Shi · Yanling Wang · Yijian Lu · Canran Xiao · Jiali Chen · Jun Xia · Yan Wang · Ji Qi<sup>†</sup> · Juanzi Li<sup>†</sup>
+  <br>
+  <sub><sup>†</sup>Corresponding authors · <a href="https://hg-bench.github.io/">Full author affiliations</a></sub>
+</p>
+
+---
+
+**HG-Bench** is a **500-sample** benchmark for **page-aware, two-level answer-region grounding** on multi-page handwritten K–12 homework. This repository contains:
+
+- the **official evaluator** (`evaluate.py`) and **VLM prompt** (`prompt.py`);
+- **sample data** and **canonical paper numbers** for reproduction;
+- the **project page** (`index.html`) served at **[hg-bench.github.io](https://hg-bench.github.io/)**.
+
+> For figures, main results, qualitative cases, and the full task definition, visit the **[project page](https://hg-bench.github.io/)**.
+
+## Highlights
+
+| | |
+|---|---|
+| **500** test samples | Stratified K–12 homework from a 1.49M-image pool |
+| **2-level grounding** | Question-level $\mathcal{F}_A$ + step-level $\mathcal{F}_S^{\mu}$ |
+| **9 baselines** | Frontier APIs and open-weight VLMs under a unified protocol |
+| **Zero dependencies** | Pure Python 3.8+ standard library |
 
 ## Quick start
 
-After cloning, run:
-
 ```bash
+git clone https://github.com/hg-bench/hg-bench.github.io.git
+cd hg-bench.github.io
 python evaluate.py --combined examples/sample_combined.jsonl
 ```
 
@@ -45,72 +65,34 @@ HG-Bench evaluation results
 ==================================================
 ```
 
-If you see those numbers, your environment is correct. The evaluator uses **Python 3.8+** with **no third-party dependencies**.
-
-## What we provide vs. what you provide
-
-| We provide | You provide |
-|---|---|
-| The evaluator (`evaluate.py`) | The HG-Bench images + ground-truth JSONL (see below) |
-| The official VLM prompt (`prompt.py`) | Your model's predictions on the 500 test samples |
-| Reference numbers (`results/`) to verify against | Inference loop (calls your model with the prompt + images) |
-
-## Get the dataset
-
-The 500-sample HG-Bench test set (~610 MB of images + GT JSONL) will be released on Hugging Face. Until then, use the sample files in `examples/` to test the evaluator.
-
-After download you will have:
+## Repository layout
 
 ```
-HG-Bench/
-├── images/
-│   ├── tianyu/...            # 250 enterprise samples (multi-page)
-│   └── zhiqi/...             # 250 consumer samples (typically single-page)
-└── annotations/
-    ├── tianyu.jsonl
-    └── zhiqi.jsonl
+├── index.html              # project page → https://hg-bench.github.io/
+├── paper.pdf               # preprint PDF
+├── evaluate.py             # official evaluator (entry point)
+├── prompt.py               # official VLM prompt
+├── examples/               # 5-sample sanity-check files
+└── results/                # canonical numbers from paper Table 2
 ```
 
-Concatenate the two annotation files:
+## Evaluate your model
+
+**1. Generate predictions** — one JSONL line per sample:
+
+```json
+{"uuid": "<same as GT>", "predict": "<raw VLM output>", "success": true}
+```
+
+Use the prompt in [`prompt.py`](prompt.py). See [`examples/sample_predictions.jsonl`](examples/sample_predictions.jsonl) for the schema.
+
+**2. Run the evaluator**
 
 ```bash
-cat HG-Bench/annotations/tianyu.jsonl HG-Bench/annotations/zhiqi.jsonl > gt.jsonl
+python evaluate.py --pred predictions.jsonl --gt gt.jsonl
 ```
 
-## Run your model and evaluate
-
-### Step 1. Generate predictions
-
-For each of the 500 samples, query your VLM with the images and the prompt in
-`prompt.py`, and save the output as a JSONL file (one line per sample):
-
-```python
-import json
-from prompt import HOMEWORK_GROUNDING_PROMPT
-
-with open("predictions.jsonl", "w") as out:
-    for sample in load_hg_bench():            # your loader
-        images = [load_image(p) for p in sample["image_paths"]]
-        response = your_vlm.generate(images=images, text=HOMEWORK_GROUNDING_PROMPT)
-        out.write(json.dumps({
-            "uuid":    sample["uuid"],
-            "predict": response,
-            "success": True,
-        }, ensure_ascii=False) + "\n")
-```
-
-### Step 2. Evaluate
-
-```bash
-python evaluate.py \
-    --pred  predictions.jsonl \
-    --gt    gt.jsonl
-```
-
-### Step 3. Verify against paper
-
-`results/homework_grounding_500_all_metrics.json` contains the canonical
-per-model numbers from paper Table 2:
+**3. Verify against paper numbers**
 
 ```bash
 python -c "
@@ -121,6 +103,10 @@ for m in json.load(open('results/homework_grounding_500_all_metrics.json')):
 "
 ```
 
+## Dataset & checkpoint
+
+The full **500-sample test set** and **reference checkpoint** will be released on Hugging Face. Until then, use `examples/` to validate your setup.
+
 ## CLI reference
 
 ```
@@ -130,12 +116,10 @@ python evaluate.py [-h]
     [--iou-thr 0.5]
     [--step-weight 0.5]
     [--coord-format {auto,pixel}]
-    [--gt-box-yxyx] [--pred-box-yxyx]
-    [--fail-str FAIL_STR]
     [--out scores.json]
 ```
 
-See the [project page](https://hg-bench.github.io/) for task definition, evaluation protocol, main results, and qualitative cases.
+Run `python evaluate.py -h` for the full list of options.
 
 ## Citation
 
